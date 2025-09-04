@@ -1,0 +1,17 @@
+{
+  "name": "postman-newman-starter",
+  "version": "1.0.0",
+  "description": "Postman - Newman starter pack to test Digy4 integration",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "newman": "^6.2.1",
+    "newman-reporter-digy4": "file:Digy4PostmanReporter/newman-reporter-digy4-1.0.0.tgz",
+    "newman-reporter-htmlextra": "^1.23.1"
+  }
+}
