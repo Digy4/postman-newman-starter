@@ -1,0 +1,168 @@
+{
+	"info": {
+		"_postman_id": "9dd8a3df-5650-45e7-a291-4f044dfb4e56",
+		"name": "Sample",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13334035"
+	},
+	"item": [
+		{
+			"name": "users",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 200\", function () {",
+							"    pm.expect(pm.response.code).to.equal(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response has the required fields\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData).to.have.all.keys('page', 'per_page', 'total', 'total_pages', 'data', 'support');",
+							"});",
+							"",
+							"",
+							"pm.test(\"Validate the structure of the data array\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.data).to.be.an('array');",
+							"",
+							"    responseData.data.forEach(function(user) {",
+							"        pm.expect(user).to.be.an('object');",
+							"        pm.expect(user).to.have.all.keys('id', 'email', 'first_name', 'last_name', 'avatar');",
+							"    });",
+							"});",
+							"",
+							"",
+							"pm.test(\"Email is in a valid format within the data array\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.data).to.be.an('array');",
+							"",
+							"    responseData.data.forEach(user => {",
+							"        pm.expect(user.email).to.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, \"Email format is invalid\");",
+							"    });",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-api-key",
+						"value": "reqres-free-v1",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://reqres.in/api/users",
+					"protocol": "https",
+					"host": [
+						"reqres",
+						"in"
+					],
+					"path": [
+						"api",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "failing-users",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Failing - Response status code is 200\", function () {",
+							"    pm.expect(pm.response.code).to.equal(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Failing - Response has the required fields\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData).to.have.all.keys('page', 'per_page', 'total', 'total_pages', 'data', 'support');",
+							"});",
+							"",
+							"",
+							"pm.test(\"Failing - Validate the structure of the data array\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.data).to.be.an('array');",
+							"",
+							"    responseData.data.forEach(function(user) {",
+							"        pm.expect(user).to.be.an('object');",
+							"        pm.expect(user).to.have.all.keys('id', 'email', 'first_name', 'last_name', 'avatar');",
+							"    });",
+							"});",
+							"",
+							"",
+							"pm.test(\"Failing - Email is in a valid format within the data array\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.data).to.be.an('array');",
+							"",
+							"    responseData.data.forEach(user => {",
+							"        pm.expect(user.email).to.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, \"Email format is invalid\");",
+							"    });",
+							"});",
+							"",
+							"",
+							"pm.test(\"Failing - Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-api-key",
+						"value": "reqres-free-v1",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://reqres.in/api/failing-users",
+					"protocol": "https",
+					"host": [
+						"reqres",
+						"in"
+					],
+					"path": [
+						"api",
+						"users-failing"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
