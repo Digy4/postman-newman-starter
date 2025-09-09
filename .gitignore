@@ -4,3 +4,4 @@ newman/
 assertions.json
 Iteration.json
 temp.json
+.env
