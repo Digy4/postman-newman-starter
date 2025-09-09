@@ -10,8 +10,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^17.2.2",
     "newman": "^6.2.1",
     "newman-reporter-digy4": "file:Digy4PostmanReporter/newman-reporter-digy4-1.0.0.tgz",
-    "newman-reporter-htmlextra": "^1.23.1"
+    "newman-reporter-htmlextra": "^1.23.1",
+    "uuid": "^13.0.0"
   }
 }

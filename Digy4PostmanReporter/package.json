@@ -5,8 +5,16 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": [
+    "newman",
+    "reporter",
+    "postman"
+  ],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "Custom Newman reporter for Digy4",
+  "dependencies": {
+    "dotenv": "^17.2.2",
+    "uuid": "^9.0.0"
+  }
 }
