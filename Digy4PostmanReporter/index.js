@@ -4,14 +4,11 @@ const path = require('path');
 const { env } = require('process');
 const { v4: uuidv4, validate } = require("uuid");
 const fetch = require("node-fetch")
-// Removed got and brotliCompress as they're not used
 
-function Digy4PostmanReport(newman, options, collectionRunOptions) {
+Digy4PostmanReport = function(newman, options, collectionRunOptions) {
     
-    // Object to collect all events
     let testResultsSummary;
     let envObject;
-    let organization_id; 
 
     const safe = (v, d='') => (v == null ? d : String(v).trim());
     
