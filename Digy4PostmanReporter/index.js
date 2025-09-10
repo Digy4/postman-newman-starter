@@ -24,11 +24,87 @@ Digy4PostmanReport = function(newman, options, collectionRunOptions) {
         return testResultsSummary.passedCount + testResultsSummary.failedCount + testResultsSummary.skippedCount;
     }
 
+    async function sendResult(test, sessionId) { 
+        const response = await validateUser() 
+
+        if (!response.valid) { 
+            return false 
+        }
+
+        const resultPayload = { 
+            id: _getResultSummaryId(), 
+            buildId: envObject.buildId,
+            teamName: envObject.teamName, 
+            hubUrl: envObject.hubUrl, 
+            hubId: envObject.hubId, 
+            testCaseName: test.testCaseName, 
+            testResult: test.testResult, 
+            testResultMessage: test.testResultMessage, 
+            projectName: envObject.projectName, 
+            startTime: test.startTime,
+            endTime: test.endTime,
+            durationMs: _getTimeDifferenceInMs(), 
+            sessionId: sessionId, 
+            resultSummaryStartTime: testResultsSummary.startTime, 
+            browserName: envObject.browserName,
+            browserVersion: envObject.browserVersion,
+            eventSessionIds: [], 
+            scriptErrors: "", 
+            capabilities: JSON.stringify(envObject), 
+            resultSummaryId: _getResultSummaryId(), 
+            deviceName: "N/A", 
+            deviceVersion: "N/A", 
+            moduleName: envObject.moduleName,
+            tester: envObject.tester, 
+            ba: envObject.ba,
+            developer: envObject.developer,
+            suiteName: envObject.suiteName,
+            environment: envObject.environment,
+            testType: envObject.testType,
+            cloudFarm: envObject.cloudFarm,
+            framework: envObject.framework,
+            tenantId: response.tenantId,
+            lob: envObject.lob, 
+            application: envObject.application, 
+            release: envObject.release, 
+            pipelineId: envObject.pipelineId, 
+            requirementId: envObject.requirementId, 
+            tags: envObject.tags, 
+            commitId: envObject.commitId
+        }
+
+        console.log('Result Payload:', JSON.stringify(resultPayload, null, 2));
+
+        const payload = { 
+            method: 'POST', 
+            headers: { 
+                'Content-Type': 'application/json'
+            }, 
+            body: JSON.stringify(resultPayload)
+        };
+
+        try {
+            const response = await fetch(envObject.resultsUrl, payload)
+            if (!response.ok) { 
+                const text = await response.text().catch(() => "no error message")
+                console.log(`Failed to send: ${test.testCaseName}, Response: ${response.status}, StatusText: ${response.statusText}, Error: ${text}`)
+                return false
+            }
+            
+            console.log(`Succesful sending: ${test.testCaseName}`)
+            return true
+        }catch(error) { 
+            console.error(`Error sending ${test.testCaseName}: ${error.message}`)
+            return false 
+        }
+    }
+
     async function sendResultsSummary(status) { 
         console.log('=== SENDING RESULTS SUMMARY ===');
         console.log('Status:', status);
 
         const response = await validateUser()
+        console.log(response)
 
         if (!response.valid) { 
             console.error("Error in validating user/project")
@@ -37,6 +113,7 @@ Digy4PostmanReport = function(newman, options, collectionRunOptions) {
         
         const resultSummaryPayload = { 
             _id: envObject._id, 
+            buildId: envObject.buildId, 
             hubId: envObject.hubId, 
             hubUrl: envObject.hubUrl, 
             resultsSummaryId: _getResultSummaryId(), 
@@ -51,6 +128,7 @@ Digy4PostmanReport = function(newman, options, collectionRunOptions) {
             passedCount: testResultsSummary.passedCount, 
             skippedCount: testResultsSummary.skippedCount, 
             failedCount: testResultsSummary.failedCount, 
+            errorCount: 0,
             totalCount: _getTotalCount(),
             startTime: testResultsSummary.startTime, 
             endTime: testResultsSummary.endTime, 
@@ -71,10 +149,10 @@ Digy4PostmanReport = function(newman, options, collectionRunOptions) {
             requirementId: envObject.requirementId,
             tags: envObject.tags,
             commitId: envObject.commitId,
-            organization_id: response.organization_id
+            tenantId: response.tenantId
         };
 
-        console.log('Payload:', JSON.stringify(resultSummaryPayload, null, 2));
+        console.log('Result Summary Payload:', JSON.stringify(resultSummaryPayload, null, 2));
 
         const payload = { 
             method: 'POST', 
@@ -99,6 +177,8 @@ Digy4PostmanReport = function(newman, options, collectionRunOptions) {
             const data = await response.json() 
 
             console.log('Response: ', JSON.stringify(data, null, 2))
+
+            return true
             
         } catch (error) { 
             console.error("❌ Error sending results:", error.message);
@@ -228,6 +308,7 @@ Digy4PostmanReport = function(newman, options, collectionRunOptions) {
     newman.on('beforeDone', async function(err, o) {
 
         console.log('In before done')
+        const sessionId = uuidv4()
 
         if (err) { 
             console.error('Error in beforeDone:', err);
@@ -275,12 +356,11 @@ Digy4PostmanReport = function(newman, options, collectionRunOptions) {
                     }
 
                     return { 
+                        testCaseName: assertion.assertion, 
                         testResult, 
-                        resultMessage, 
-                        teamName: envObject.teamName,
-                        method,
-                        url,
-                        executionId
+                        testResultMessage: resultMessage,
+                        startTime: testResultsSummary.startTime,
+                        endTime: testResultsSummary.endTime,
                     };
                 });
             } else {
@@ -299,12 +379,23 @@ Digy4PostmanReport = function(newman, options, collectionRunOptions) {
         
         console.log('Test Results Summary:', testResultsSummary);
         console.log(`Total Tests: ${_getTotalCount()}, Passed: ${testResultsSummary.passedCount}, Failed: ${testResultsSummary.failedCount}, Skipped: ${testResultsSummary.skippedCount}`);
+        console.log(`All Testcases: ${JSON.stringify(allTestCases, null, 2)}`)
+
+        // Batch req 
+        // const promises = allTestCases.map((test) => { 
+        //     return sendResult(test, sessionId)
+        // })
+
+        for (const test of allTestCases){ 
+            const response = await sendResult(test, sessionId)
+            console.log(response)
+        }
         
         try { 
             console.log('Digy4 Newman Reporter: Sending results summary...');
-            const response = await sendResultsSummary('Completed')
+            const success = await sendResultsSummary('Completed')
             
-            if (response.ok) { 
+            if (success) { 
                 console.log('Digy4 Newman Reporter success sending result....')
             }else{ 
                 console.error('Digy4 Newman Reporter failed sending result....')
