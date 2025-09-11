@@ -1,14 +1,19 @@
-const { exec } = require('child_process');
-const fs = require('fs');
-const path = require('path');
-const { env } = require('process');
-const { v4: uuidv4, validate } = require("uuid");
-const fetch = require("node-fetch")
+const { v4: uuidv4 } = require("uuid");
 
-Digy4PostmanReport = function(newman, options, collectionRunOptions) {
+module.exports = function digy4(newman, options, collectionRunOptions) {
     
     let testResultsSummary;
-    let envObject;
+    const envObject = {}
+
+    console.log('=== DEBUG INFO ===');
+    console.log('options:', JSON.stringify(options, null, 2));
+    console.log('collectionRunOptions keys:', Object.keys(collectionRunOptions));
+    console.log('collectionRunOptions.environment:', JSON.stringify(collectionRunOptions.environment, null, 2));
+
+    
+    if (collectionRunOptions.collection) {
+        console.log('Collection has environment?', !!collectionRunOptions.collection.environment);
+    }
 
     const safe = (v, d='') => (v == null ? d : String(v).trim());
     
@@ -24,8 +29,9 @@ Digy4PostmanReport = function(newman, options, collectionRunOptions) {
         return testResultsSummary.passedCount + testResultsSummary.failedCount + testResultsSummary.skippedCount;
     }
 
-    async function sendResult(test, sessionId) { 
+    async function sendResult(test) { 
         const response = await validateUser() 
+        const sessionId = uuidv4()
 
         if (!response.valid) { 
             return false 
@@ -33,24 +39,27 @@ Digy4PostmanReport = function(newman, options, collectionRunOptions) {
 
         const resultPayload = { 
             id: _getResultSummaryId(), 
-            buildId: envObject.buildId,
             teamName: envObject.teamName, 
             hubUrl: envObject.hubUrl, 
             hubId: envObject.hubId, 
-            testCaseName: test.testCaseName, 
             testResult: test.testResult, 
-            testResultMessage: test.testResultMessage, 
             projectName: envObject.projectName, 
+            buildId: envObject.buildId,
+            
             startTime: test.startTime,
             endTime: test.endTime,
             durationMs: _getTimeDifferenceInMs(), 
-            sessionId: sessionId, 
+            testCaseName: test.testCaseName, 
+            testResultMessage: test.testResultMessage, 
             resultSummaryStartTime: testResultsSummary.startTime, 
+            
             browserName: envObject.browserName,
             browserVersion: envObject.browserVersion,
             eventSessionIds: [], 
             scriptErrors: "", 
             capabilities: JSON.stringify(envObject), 
+            
+            sessionId: sessionId, 
             resultSummaryId: _getResultSummaryId(), 
             deviceName: "N/A", 
             deviceVersion: "N/A", 
@@ -63,6 +72,7 @@ Digy4PostmanReport = function(newman, options, collectionRunOptions) {
             testType: envObject.testType,
             cloudFarm: envObject.cloudFarm,
             framework: envObject.framework,
+            apiRequestResponseLogs: [],
             tenantId: response.tenantId,
             lob: envObject.lob, 
             application: envObject.application, 
@@ -249,51 +259,57 @@ Digy4PostmanReport = function(newman, options, collectionRunOptions) {
     }
 
     function envSummary() {
+
+        const env = Object.fromEntries(collectionRunOptions.environment.values)
+        console.log(JSON.stringify(env))
+
         return {
             _id: uuidv4(), 
-            hubId: safe(process.env.HUB_ID, 'localhost'),
-            hubUrl: safe(process.env.HUB_URL, 'http://localhost'),
+            hubId: safe(environment?.HUB_ID, 'localhost'),
+            hubUrl: safe(environment?.HUB_URL, 'http://localhost'),
             
-            projectName: safe(process.env.PROJECT_NAME),
-            teamName: safe(process.env.TEAM_NAME),
-            buildId: safe(process.env.BUILD_ID, uuidv4()),
-            suiteName: safe(process.env.SUITE_NAME, 'N/A'),
+            projectName: safe(environment?.PROJECT_NAME),
+            teamName: safe(environment?.TEAM_NAME),
+            buildId: safe(environment?.BUILD_ID, uuidv4()),
+            suiteName: safe(environment?.SUITE_NAME, 'N/A'),
             
-            appVersion: safe(process.env.APP_VERSION),
-            browserName: safe(process.env.BROWSER_NAME, 'N/A'),
-            browserVersion: safe(process.env.BROWSER_VERSION, 'N/A'),
+            appVersion: safe(environment?.APP_VERSION),
+            browserName: safe(environment?.BROWSER_NAME, 'N/A'),
+            browserVersion: safe(environment?.BROWSER_VERSION, 'N/A'),
 
-            framework: safe(process.env.FRAMEWORK, 'Newman/Postman'),
-            environment: safe(process.env.ENVIRONMENT, 'test'),
-            moduleName: safe(process.env.MODULE_NAME),
-            tester: safe(process.env.TESTER), 
-            ba: safe(process.env.BA),
-            developer: safe(process.env.DEVELOPER),
-            testType: safe(process.env.TEST_TYPE, 'API'),
-            cloudFarm: safe(process.env.CLOUD_FARM, 'LOCAL'),
+            framework: safe(environment?.FRAMEWORK, 'Newman/Postman'),
+            environment: safe(environment?.ENVIRONMENT, 'test'),
+            moduleName: safe(environment?.MODULE_NAME),
+            tester: safe(environment?.TESTER), 
+            ba: safe(environment?.BA),
+            developer: safe(environment?.DEVELOPER),
+            testType: safe(environment?.TEST_TYPE, 'API'),
+            cloudFarm: safe(environment?.CLOUD_FARM, 'LOCAL'),
             
-            clientId: safe(process.env.CLIENT_ID), 
-            clientSecret: safe(process.env.CLIENT_SECRET), 
+            clientId: safe(environment?.CLIENT_ID), 
+            clientSecret: safe(environment?.CLIENT_SECRET), 
 
-            lob: safe(process.env.LOB),
-            application: safe(process.env.APPLICATION),
-            release: safe(process.env.RELEASE),
-            pipelineId: safe(process.env.PIPELINE_ID),
-            requirementId: safe(process.env.REQUIREMENT_ID),
-            tags: safe(process.env.TAGS),
-            commitId: safe(process.env.COMMIT_ID),
+            lob: safe(environment?.LOB),
+            application: safe(environment?.APPLICATION),
+            release: safe(environment?.RELEASE),
+            pipelineId: safe(environment?.PIPELINE_ID),
+            requirementId: safe(environment?.REQUIREMENT_ID),
+            tags: safe(environment?.TAGS),
+            commitId: safe(environment?.COMMIT_ID),
             
-            resultsSummaryUrl: safe(process.env.RESULTS_SUMMARY_URL),
-            resultsUrl: safe(process.env.RESULTS_URL),
-            projectPlanUrl: safe(process.env.PROJECT_PLAN_URL), 
+            resultsSummaryUrl: safe(environment?.RESULTS_SUMMARY_URL),
+            resultsUrl: safe(environment?.RESULTS_URL),
+            projectPlanUrl: safe(environment?.PROJECT_PLAN_URL), 
         };
     }
 
-    newman.on('start', async function () {
+    newman.on('start', async function (err, args) {
         console.log('In start')
 
         console.log('Digy4 Newman Reporter: Starting...');
-        envObject = envSummary();
+        envSummary()
+
+        console.log(JSON.stringify(envObject))
 
         testResultsSummary = {
             passedCount: 0,
@@ -387,7 +403,7 @@ Digy4PostmanReport = function(newman, options, collectionRunOptions) {
         // })
 
         for (const test of allTestCases){ 
-            const response = await sendResult(test, sessionId)
+            const response = await sendResult(test)
             console.log(response)
         }
         
@@ -417,5 +433,3 @@ Digy4PostmanReport = function(newman, options, collectionRunOptions) {
         
     });
 }
-
-module.exports = Digy4PostmanReport;
