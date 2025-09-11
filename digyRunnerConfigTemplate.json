@@ -1,0 +1,126 @@
+{
+    "id": "digy4-newman-config",
+    "name": "Digy4 Newman Configuration",
+    "values": [
+        {
+            "key": "PROJECT_NAME",
+            "value": "value",
+            "enabled": true,
+            "type": "text"
+        },
+        {
+            "key": "TEAM_NAME",
+            "value": "value",
+            "enabled": true,
+            "type": "text"
+        },
+        {
+            "key": "SUITE_NAME",
+            "value": "value",
+            "enabled": true,
+            "type": "text"
+        },
+        {
+            "key": "APP_VERSION",
+            "value": "value",
+            "enabled": true,
+            "type": "text"
+        },
+        {
+            "key": "ENVIRONMENT",
+            "value": "value",
+            "enabled": true,
+            "type": "text"
+        },
+        {
+            "key": "FRAMEWORK",
+            "value": "value",
+            "enabled": true,
+            "type": "text"
+        },
+        {
+            "key": "MODULE_NAME",
+            "value": "value",
+            "enabled": true,
+            "type": "text"
+        },
+        {
+            "key": "TESTER",
+            "value": "value",
+            "enabled": true,
+            "type": "text"
+        },
+        {
+            "key": "BA",
+            "value": "value",
+            "enabled": true,
+            "type": "text"
+        },
+        {
+            "key": "DEVELOPER",
+            "value": "value",
+            "enabled": true,
+            "type": "text"
+        },
+        {
+            "key": "TEST_TYPE",
+            "value": "value",
+            "enabled": true,
+            "type": "text"
+        },
+        {
+            "key": "LOB",
+            "value": "value",
+            "enabled": true,
+            "type": "text"
+        },
+        {
+            "key": "APPLICATION",
+            "value": "value",
+            "enabled": true,
+            "type": "text"
+        },
+        {
+            "key": "RELEASE",
+            "value": "value",
+            "enabled": true,
+            "type": "text"
+        },
+        {
+            "key": "RESULTS_SUMMARY_URL",
+            "value": "value",
+            "enabled": true,
+            "type": "text"
+        },
+        {
+            "key": "RESULTS_URL",
+            "value": "value",
+            "enabled": true,
+            "type": "text"
+        },
+        {
+            "key": "PROJECT_PLAN_URL",
+            "value": "value",
+            "enabled": true,
+            "type": "text"
+        },
+        {
+            "key": "CLIENT_ID",
+            "value": "value",
+            "enabled": true,
+            "type": "text"
+        },
+        {
+            "key": "CLIENT_SECRET",
+            "value": "value",
+            "enabled": true,
+            "type": "text"
+        },
+        {
+            "key": "BUILD_ID",
+            "value": "value",
+            "enabled": true,
+            "type": "text"
+        }
+    ]
+}
