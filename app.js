@@ -1,5 +1,6 @@
 const newman = require("newman")
 const dotenv = require("dotenv")
+
 dotenv.config()
 
 newman.run({
@@ -7,7 +8,8 @@ newman.run({
     reporters: 'digy4',
     reporter: { 
         'digy4': { 
-            suppressExitCode: true
+            suppressExitCode: true, 
+            environment: require("./digyrunnerConfig.json")
         }
-    }
+    }, 
 })

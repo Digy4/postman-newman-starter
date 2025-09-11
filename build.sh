@@ -1,3 +1,5 @@
+#!/bin/bash
+
 cd ./Digy4PostmanReporter
 npm install  # Install uuid dependency
 npm pack

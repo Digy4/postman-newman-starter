@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require("uuid");
 module.exports = function digy4(newman, options, collectionRunOptions) {
     
     let testResultsSummary;
-    const envObject = {}
+    let envObject; 
 
     console.log('=== DEBUG INFO ===');
     console.log('options:', JSON.stringify(options, null, 2));
@@ -260,8 +260,12 @@ module.exports = function digy4(newman, options, collectionRunOptions) {
 
     function envSummary() {
 
-        const env = Object.fromEntries(collectionRunOptions.environment.values)
-        console.log(JSON.stringify(env))
+        const environment = collectionRunOptions.environment.values.reduce((acc, item) => {
+            const key = item.key 
+            const value = item.value 
+            acc[key] = value 
+            return acc
+        }, {})
 
         return {
             _id: uuidv4(), 
@@ -307,7 +311,7 @@ module.exports = function digy4(newman, options, collectionRunOptions) {
         console.log('In start')
 
         console.log('Digy4 Newman Reporter: Starting...');
-        envSummary()
+        envObject = envSummary()
 
         console.log(JSON.stringify(envObject))
 
